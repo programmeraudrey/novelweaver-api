@@ -1,0 +1,47 @@
+{
+    "models": {
+        "deepseek-reasoner": {
+            "base_url": "https://api.deepseek.com",
+            "api_key": ""
+        },
+        "doubao-seed-2-0-pro-260215-high": {
+            "base_url": "https://ark.cn-beijing.volces.com/api/v3/",
+            "api_key": "",
+            "actual_model": "doubao-seed-2-0-pro-260215",
+            "reasoning_effort": "high"
+        },
+        "doubao-seed-2-0-pro-260215-low": {
+            "base_url": "https://ark.cn-beijing.volces.com/api/v3/",
+            "api_key": "",
+            "actual_model": "doubao-seed-2-0-pro-260215",
+            "reasoning_effort": "low"
+        }
+    },
+    "agents": {
+        "ai_node_expansion": {
+            "model": "deepseek-reasoner",
+            "temperature": 0
+        },
+        "fixed_node_split": {
+            "model": "deepseek-reasoner",
+            "temperature": 0
+        },
+        "background_summary": {
+            "model": "deepseek-reasoner",
+            "temperature": 0
+        }
+    },
+    "httpx_limits": {
+        "max_keepalive_connections": 200,
+        "max_connections": 1000,
+        "timeout": 300.0,
+        "connect_timeout": 15.0
+    },
+    "max_llm_threads": 128,
+    "server": {
+        "host": "0.0.0.0",
+        "port": 8100,
+        "dev_mode": true,
+        "workers": 4
+    }
+}

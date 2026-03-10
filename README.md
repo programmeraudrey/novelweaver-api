@@ -4,6 +4,12 @@
 
 ## 快速开始
 
+**注意：请先在config.json里填写api key**
+```bash
+# config.json
+"api_key": "YOUR_API_KEY_HERE"
+```
+
 ```bash
 # 启动服务器（默认端口 8100）
 python server.py

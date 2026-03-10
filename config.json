@@ -19,15 +19,15 @@
     },
     "agents": {
         "ai_node_expansion": {
-            "model": "deepseek-reasoner",
+            "model": "doubao-seed-2-0-pro-260215-low",
             "temperature": 0
         },
         "fixed_node_split": {
-            "model": "deepseek-reasoner",
+            "model": "doubao-seed-2-0-pro-260215-low",
             "temperature": 0
         },
         "background_summary": {
-            "model": "deepseek-reasoner",
+            "model": "doubao-seed-2-0-pro-260215-low",
             "temperature": 0
         }
     },

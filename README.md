@@ -26,7 +26,7 @@ python demo_api_quickstart.py --no-stream   # 跳过流式演示
 ---
 
 ## 输入输出格式与字段定义
-输入输出格式请见`input-example/`和`output-example/`，字段定义请见server.py 63-223行。
+输入输出格式请见`input-example/`和`output-example/`，字段定义请见 server.py 63-223行。
 
 ---
 

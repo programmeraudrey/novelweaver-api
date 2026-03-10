@@ -123,21 +123,21 @@
     "ai_reply_style": "吴魏热情外向，林亦扬话少但有存在感。",
     "image_requirements": "暴雪夜的酒吧内部，暖黄色灯光",
     "user_role": "殷果",
-    "involved_roles": [
+    "roles": [
         {
-            "name": "殷果",
+            "role_name": "殷果",
             "description": "用户所扮演的角色。当红职业九球选手。"
         },
         {
-            "name": "林亦扬",
+            "role_name": "林亦扬",
             "description": "高个子黑衣男人，沉默寡言但气场强。"
         },
         {
-            "name": "吴魏",
+            "role_name": "吴魏",
             "description": "戴眼镜的华裔男人，热情外向。"
         },
         {
-            "name": "孟晓天",
+            "role_name": "孟晓天",
             "description": "殷果的表弟，活泼好动。"
         }
     ],

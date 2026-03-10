@@ -18,7 +18,7 @@ _SECTION_MARKERS = [
     r"【节点】", r"\[图片提示词\]", r"\[音乐类型\]", r"\[开场白\]",
     r"\[背景\]", r"\[人物空间关系与状态\]",
     r"\[当前剧情\]", r"\[任务\]", r"\[用户消息\]",
-    r"\[进度指标\]",
+    r"\[彩蛋\]", r"\[进度指标\]",
 ]
 
 
@@ -141,6 +141,11 @@ def parse_ai_node_output(raw_text: str) -> Dict[str, Any]:
         result["needs_regeneration"] = True
         parse_warnings.append("invalid_progress_format: 进度格式必须为 '进度值名+数字'")
 
+    # --- 彩蛋 ---
+    result["easter_eggs"] = _parse_easter_eggs(
+        _extract_section(raw_text, r"\[彩蛋\]")
+    )
+
     # --- 进度指标 ---
     result["progress_indicators"] = _parse_progress_indicators(
         _extract_section(raw_text, r"\[进度指标\]")
@@ -255,10 +260,6 @@ def _parse_user_messages(raw: str) -> tuple:
         branch["progress_name"] = m.group(1) if m else ""
         branch["progress_gain"] = int(m.group(2)) if m else 0
 
-        # 彩蛋（可选）
-        m = re.search(r"彩蛋[:：]\s*(.+?)(?=\n|$)", part)
-        branch["egg_name"] = m.group(1).strip() if m else None
-
         # 示例（可选，可能多个）
         examples: List[str] = []
         example_parts = re.split(r"示例\d+[:：]", part)
@@ -273,45 +274,7 @@ def _parse_user_messages(raw: str) -> tuple:
 
         branches.append(branch)
 
-    # --- 彩蛋后处理：拆分带括号描述的彩蛋 ---
-    branches = _postprocess_egg_branches(branches)
-
     return branches, has_invalid_progress
-
-
-def _postprocess_egg_branches(branches: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """
-    彩蛋后处理：如果彩蛋名后包含括号描述（如 "彩蛋名 (触发条件)"），
-    则从原分支移除彩蛋，并将括号内容拆分为一个独立的新分支。
-    """
-    result = []
-    for branch in branches:
-        egg_name = branch.get("egg_name")
-        if egg_name:
-            # 匹配彩蛋名后的中文或英文括号内容
-            m = re.match(r"^(.+?)\s*[（(](.+)[）)]\s*$", egg_name)
-            if m:
-                clean_egg_name = m.group(1).strip()
-                egg_trigger = m.group(2).strip()
-
-                # 从原分支移除彩蛋
-                branch["egg_name"] = None
-                result.append(branch)
-
-                # 创建新分支：触发条件=括号内容，进度与原分支相同
-                new_branch = {
-                    "trigger": egg_trigger,
-                    "ai_reply": "",
-                    "progress_name": branch["progress_name"],
-                    "progress_gain": branch["progress_gain"],
-                    "egg_name": clean_egg_name,
-                    "examples": [],
-                }
-                result.append(new_branch)
-                continue
-
-        result.append(branch)
-    return result
 
 
 def _parse_progress_indicators(raw: str) -> List[Dict[str, Any]]:
@@ -398,22 +361,26 @@ def _parse_rewards(part: str) -> Dict[str, Any]:
 
 
 def _parse_easter_eggs(raw: str) -> List[Dict[str, str]]:
-    """解析 [彩蛋]"""
+    """解析 [彩蛋] —— 独立彩蛋列表格式"""
     if not raw or raw.strip() == "无":
         return []
 
     eggs: List[Dict[str, str]] = []
-    parts = re.split(r"彩蛋\d+[:：]", raw)
+    parts = re.split(r"彩蛋\d+[：:]", raw)
 
     for part in parts[1:]:
-        m_name = re.search(r"彩蛋名[:：]\s*(.+?)(?=\n|$)", part)
-        m_cond = re.search(r"触发条件[:：]\s*(.+?)(?=\n|$)", part)
+        # 彩蛋名在分割标记后的第一行
+        lines = part.strip().split("\n")
+        name = lines[0].strip() if lines else ""
 
-        name = m_name.group(1).strip() if m_name else ""
+        # 触发条件
+        m_cond = re.search(r"触发条件[:：]\s*(.+?)(?=\n彩蛋\d|$)", part, re.DOTALL)
+        trigger = m_cond.group(1).strip() if m_cond else ""
+
         if name:
             eggs.append({
                 "name": name,
-                "trigger_condition": m_cond.group(1).strip() if m_cond else "",
+                "trigger": trigger,
             })
 
     return eggs

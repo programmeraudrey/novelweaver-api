@@ -124,9 +124,9 @@ class AINodeRequest(BaseModel):
 
     # --- 角色信息 ---
     user_role: str = Field("用户", description="用户扮演的角色名")
-    involved_roles: List[Dict[str, str]] = Field(
+    roles: List[Dict[str, str]] = Field(
         default_factory=list,
-        description="参与本场景的角色列表，每个元素 {name, description}"
+        description="小说完整角色表，每个元素 {role_name, description}。API 通过字符串匹配自动提取参与本场景的角色。"
     )
 
     # --- 小说全局元数据 ---
@@ -159,8 +159,13 @@ class UserMessageBranch(BaseModel):
     ai_reply: str = Field(..., description="AI回复策略描述")
     progress_name: str = Field(..., description="进度指标名称")
     progress_gain: int = Field(..., description="进度增量 (0/40/50/100)")
-    egg_name: Optional[str] = Field(None, description="关联的彩蛋名（如有）")
     examples: List[str] = Field(default_factory=list, description="回复示例")
+
+
+class EasterEgg(BaseModel):
+    """彩蛋"""
+    name: str = Field(..., description="彩蛋名称（≤8字）")
+    trigger: str = Field(..., description="触发条件（用户的具体输入内容）")
 
 
 class AttributeReward(BaseModel):
@@ -223,6 +228,7 @@ class AINodeResponse(BaseModel):
     current_plot: CurrentPlot = Field(..., description="当前剧情")
     task: str = Field(..., description="任务描述")
     user_messages: List[UserMessageBranch] = Field(..., description="用户消息分支")
+    easter_eggs: List[EasterEgg] = Field(default_factory=list, description="彩蛋列表")
     progress_indicators: List[ProgressIndicator] = Field(..., description="进度指标")
     needs_regeneration: bool = Field(False, description="是否需要重新生成（进度格式不合规时为True）")
     raw_output: Optional[str] = Field(None, description="LLM原始输出（调试用）")
@@ -326,6 +332,25 @@ async def _prepare_ai_node(request: AINodeRequest):
         prev_node_text = prompt_builder.serialize_previous_nodes(request.previous_nodes)
         background = await _generate_background_summary(prev_node_text, request.model)
 
+    # 从完整角色表中自动提取参与本场景的角色
+    plot_text = "\n".join([
+        request.plot_start,
+        request.plot_process,
+        request.task,
+        "\n".join(p.content for p in request.prologue),
+        "\n".join(e.description for e in request.plot_endings),
+    ])
+    involved_roles = []
+    for role in request.roles:
+        role_name = role.get("role_name", "")
+        if not role_name:
+            continue
+        if role_name in plot_text or role_name == request.user_role:
+            involved_roles.append({
+                "name": role_name,
+                "description": role.get("description", ""),
+            })
+
     prompt = prompt_builder.generate_ai_node_expansion_prompt(
         background=background,
         prologue=[p.model_dump() for p in request.prologue],
@@ -336,7 +361,7 @@ async def _prepare_ai_node(request: AINodeRequest):
         ai_reply_style=request.ai_reply_style,
         image_requirements=request.image_requirements,
         user_role=request.user_role,
-        involved_roles=request.involved_roles,
+        involved_roles=involved_roles,
         attributes=request.attributes,
         favorabilities=request.favorabilities,
         existing_events=request.existing_events,

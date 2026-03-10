@@ -29,17 +29,17 @@
     "ai_reply_style": "林亦扬话少，多以动作和神态传递情感。不会主动说太多，但对殷果的反应微妙而温柔。",
     "image_requirements": "深夜皇后区小酒店门口，路灯昏黄，雪还在下",
     "user_role": "殷果",
-    "involved_roles": [
+    "roles": [
         {
-            "name": "殷果",
+            "role_name": "殷果",
             "description": "用户所扮演的角色。当红职业九球选手，性格谨慎安静。"
         },
         {
-            "name": "林亦扬",
+            "role_name": "林亦扬",
             "description": "高个子黑衣男人，前台球职业选手，沉默寡言但内心细腻。"
         },
         {
-            "name": "孟晓天",
+            "role_name": "孟晓天",
             "description": "殷果的表弟，活泼好动，有时候嘴比脑子快。"
         }
     ],

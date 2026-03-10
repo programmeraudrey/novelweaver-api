@@ -21,13 +21,13 @@
     "ai_reply_style": "郑艺语气幽默、毒舌但暖心，像闺蜜之间的日常拌嘴。",
     "image_requirements": "暴雪夜的酒吧暖光氛围",
     "user_role": "殷果",
-    "involved_roles": [
+    "roles": [
         {
-            "name": "郑艺",
+            "role_name": "郑艺",
             "description": "殷果的闺蜜。性格直率幽默、毒舌但暖心。"
         },
         {
-            "name": "殷果",
+            "role_name": "殷果",
             "description": "用户所扮演的角色。当红职业九球选手，来自北城俱乐部，性格比较谨慎、安静。外表柔弱但内心坚韧。"
         }
     ],
